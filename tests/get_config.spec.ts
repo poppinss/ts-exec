@@ -6,8 +6,8 @@
  */
 
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { join } from 'node:path/posix'
 import { getConfig } from '../src/get_config.ts'
 
 test.group('Get config', () => {
