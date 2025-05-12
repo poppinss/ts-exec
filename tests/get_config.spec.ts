@@ -5,8 +5,8 @@
  * file that was distributed with this source code.
  */
 
-import { tmpdir } from 'node:os'
 import { test } from '@japa/runner'
+import { tmpdir, EOL } from 'node:os'
 import { join } from 'node:path/posix'
 import { getConfig } from '../src/get_config.ts'
 
@@ -92,7 +92,7 @@ test.group('Get config', () => {
             "verbatimModuleSyntax": true,
           },
         },
-        "tsConfigPath": "${join(fs.basePath, 'tsconfig.json')}",
+        "tsConfigPath": "${join(...fs.basePath.split(EOL), 'tsconfig.json')}",
       }
     `)
   })
@@ -147,7 +147,7 @@ test.group('Get config', () => {
             "verbatimModuleSyntax": true,
           },
         },
-        "tsConfigPath": "${join(fs.basePath, 'tsconfig.json')}",
+        "tsConfigPath": "${join(...fs.basePath.split(EOL), 'tsconfig.json')}",
       }
     `)
   })
@@ -199,7 +199,7 @@ test.group('Get config', () => {
             "verbatimModuleSyntax": true,
           },
         },
-        "tsConfigPath": "${join(fs.basePath, 'tsconfig.json')}",
+        "tsConfigPath": "${join(...fs.basePath.split(EOL), 'tsconfig.json')}",
       }
     `)
   })
