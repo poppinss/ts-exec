@@ -8,7 +8,7 @@
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { getConfig } from '../src/get_config.js'
+import { getConfig } from '../src/get_config.ts'
 
 test.group('Get config', () => {
   test('return default config when unable to find tsconfig.json file', ({ assert }) => {

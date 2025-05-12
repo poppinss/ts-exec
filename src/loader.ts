@@ -12,10 +12,10 @@ import type { TsConfigJsonResolved } from 'get-tsconfig'
 import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
 import { resolveImports, type PathConditionsMap } from 'resolve-pkg-maps'
 
-import debug from './debug.js'
-import { getConfig } from './get_config.js'
-import { transformSync } from './transform.js'
-import { getPackageJson } from './get_package_json.js'
+import debug from './debug.ts'
+import { getConfig } from './get_config.ts'
+import { transformSync } from './transform.ts'
+import { getPackageJson } from './get_package_json.ts'
 
 let swcConfig: SwcConfig
 let tsConfig: TsConfigJsonResolved | null

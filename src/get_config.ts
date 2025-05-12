@@ -5,7 +5,7 @@
  * file that was distributed with this source code.
  */
 
-import debug from './debug.js'
+import debug from './debug.ts'
 import { fileURLToPath } from 'node:url'
 import type { Config as SWCConfig } from '@swc/core'
 import { getTsconfig, type TsConfigJson, type TsConfigJsonResolved } from 'get-tsconfig'

@@ -1,7 +1,7 @@
 {
   "name": "ts-exec",
   "description": "",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "engines": {
     "node": ">=20.6.0"
   },
@@ -27,7 +27,7 @@
     "version": "npm run build",
     "prepublishOnly": "npm run build",
     "release": "release-it",
-    "quick:test": "node --import=ts-node-maintained/register/esm --enable-source-maps bin/test.ts"
+    "quick:test": "node --experimental-transform-types --enable-source-maps bin/test.ts"
   },
   "devDependencies": {
     "@adonisjs/eslint-config": "^2.0.0-beta.6",
@@ -40,7 +40,6 @@
     "@japa/runner": "^3.1.4",
     "@japa/snapshot": "^2.0.8",
     "@release-it/conventional-changelog": "^9.0.4",
-    "@swc/core": "^1.11.24",
     "@types/node": "^22.10.2",
     "c8": "^10.1.3",
     "eslint": "^9.17.0",
@@ -49,9 +48,13 @@
     "preact-render-to-string": "^6.5.13",
     "prettier": "^3.4.2",
     "release-it": "^17.11.0",
-    "ts-node-maintained": "^10.9.4",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@swc/core": "^1.11.24",
+    "get-tsconfig": "^4.10.0",
+    "resolve-pkg-maps": "^1.0.0"
   },
   "homepage": "https://github.com/<org>/<repo>#readme",
   "repository": {
@@ -114,10 +117,6 @@
     ]
   },
   "prettier": "@adonisjs/prettier-config",
-  "dependencies": {
-    "get-tsconfig": "^4.10.0",
-    "resolve-pkg-maps": "^1.0.0"
-  },
   "volta": {
     "node": "24.0.0"
   }

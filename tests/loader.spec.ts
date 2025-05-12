@@ -7,7 +7,7 @@
 
 import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { spawnPromisified } from './helpers.js'
+import { spawnPromisified } from './helpers.ts'
 
 test.group('Loader', (group) => {
   group.each.setup(({ context }) => {
