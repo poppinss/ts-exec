@@ -6,10 +6,10 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml@main
+    uses: ./.github/workflows/test.yml
 
   lint:
-    uses: ./.github/workflows/lint.yml@main
+    uses: ./.github/workflows/lint.yml
 
   typecheck:
-    uses: ./.github/workflows/typecheck.yml@main
+    uses: ./.github/workflows/typecheck.yml
