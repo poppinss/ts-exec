@@ -56,15 +56,20 @@
     "get-tsconfig": "^4.10.0",
     "resolve-pkg-maps": "^1.0.0"
   },
-  "homepage": "https://github.com/<org>/<repo>#readme",
+  "homepage": "https://github.com/thetutlage/ts-exec#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<org>/<repo>.git"
+    "url": "git+https://github.com/thetutlage/ts-exec.git"
   },
   "bugs": {
-    "url": "https://github.com/<org>/<repo>/issues"
+    "url": "https://github.com/thetutlage/ts-exec/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "typescript",
+    "ts-node",
+    "transpiler",
+    "tsx"
+  ],
   "author": "Harminder Virk <virk@adonisjs.com>",
   "license": "MIT",
   "publishConfig": {
