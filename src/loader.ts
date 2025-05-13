@@ -102,9 +102,8 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   const allowArbitraryExtensions = !!tsConfig?.compilerOptions?.allowArbitraryExtensions
 
   /**
-   * When arbritary file extensions are not allowed, we will rewrite ".js" file extensions
-   * to ".ts". This might lead to issues when there is an actual `.js` file and `allowJS`
-   * is set to true. However, for now we will ignore that case.
+   * When arbritary file extensions are not allowed and there is a typescript import,
+   * then we will result in an error to match the behavior of TypeScript.
    */
   if (!allowArbitraryExtensions) {
     if (isLocalPath(specifier)) {
@@ -117,6 +116,23 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
       if (UNALLOWED_FILE_EXTENSIONS.includes(fileExtension) && context.parentURL) {
         throw new Error(`Unknown file extension "${fileExtension}"`)
       }
+    }
+  }
+
+  debug('resolving file with specifier %s', specifier)
+  try {
+    return await nextResolve(specifier, context)
+  } catch (error) {
+    /**
+     * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions when
+     * "allowArbitraryExtensions" is false
+     */
+    if (
+      !allowArbitraryExtensions &&
+      error.code === 'ERR_MODULE_NOT_FOUND' &&
+      isLocalPath(specifier)
+    ) {
+      const fileExtension = extname(specifier)
 
       if (fileExtension === '.js') {
         specifier = specifier.replace('.js', '.ts')
@@ -127,11 +143,13 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
       } else if (fileExtension === '.jsx') {
         specifier = specifier.replace('.jsx', '.tsx')
       }
-    }
-  }
 
-  debug('resolving file with specifier %s', specifier)
-  return nextResolve(specifier, context)
+      debug('retrying to resolve file with specifier %s', specifier)
+      return nextResolve(specifier, context)
+    }
+
+    throw error
+  }
 }
 
 /**
