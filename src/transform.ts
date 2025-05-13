@@ -5,7 +5,7 @@
  * file that was distributed with this source code.
  */
 
-import { Config as SwcConfig, transformSync as swcTransform } from '@swc/core'
+import { Config as SwcConfig, transform as swcTransform } from '@swc/core'
 
 /**
  * Transforms source code using SWC

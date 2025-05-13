@@ -144,7 +144,7 @@ export const load: LoadHook = async function load(url, context, nextLoad) {
         format: 'module',
       })
 
-      const { code, map } = transformSync(source!.toString(), {
+      const { code, map } = await transformSync(source!.toString(), {
         format: (format as 'module-typescript' | 'commonjs-typescript') ?? 'module-tsx',
         filename: fileURLToPath(url),
         ...swcConfig,
