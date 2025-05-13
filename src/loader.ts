@@ -7,6 +7,7 @@
 
 import { extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createError } from '@poppinss/exception'
 import type { Config as SwcConfig } from '@swc/core'
 import type { TsConfigJsonResolved } from 'get-tsconfig'
 import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
@@ -16,7 +17,6 @@ import debug from './debug.ts'
 import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
 import { getPackageJson } from './get_package_json.ts'
-import { createError } from '@poppinss/exception'
 
 let swcConfig: SwcConfig
 let tsConfig: TsConfigJsonResolved | null
