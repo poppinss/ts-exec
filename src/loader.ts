@@ -16,10 +16,16 @@ import debug from './debug.ts'
 import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
 import { getPackageJson } from './get_package_json.ts'
+import { createError } from '@poppinss/exception'
 
 let swcConfig: SwcConfig
 let tsConfig: TsConfigJsonResolved | null
 let subPathImports: PathConditionsMap | null
+
+const ERR_UNKNOWN_FILE_EXTENSION = createError<[string]>(
+  'Unknown file extension "%s"',
+  'ERR_UNKNOWN_FILE_EXTENSION'
+)
 
 /**
  * The following file extensions are not allowed unless "allowArbitraryExtensions"
@@ -114,7 +120,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
        * file
        */
       if (UNALLOWED_FILE_EXTENSIONS.includes(fileExtension) && context.parentURL) {
-        throw new Error(`Unknown file extension "${fileExtension}"`)
+        throw new ERR_UNKNOWN_FILE_EXTENSION([fileExtension])
       }
     }
   }

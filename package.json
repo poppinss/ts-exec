@@ -52,6 +52,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@poppinss/exception": "^1.2.1",
     "@swc/core": "^1.11.24",
     "get-tsconfig": "^4.10.0",
     "resolve-pkg-maps": "^1.0.0"
