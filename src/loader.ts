@@ -7,7 +7,6 @@
 
 import { extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createError } from '@poppinss/exception'
 import type { Config as SwcConfig } from '@swc/core'
 import type { TsConfigJsonResolved } from 'get-tsconfig'
 import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
@@ -21,17 +20,6 @@ import { getPackageJson } from './get_package_json.ts'
 let swcConfig: SwcConfig
 let tsConfig: TsConfigJsonResolved | null
 let subPathImports: PathConditionsMap | null
-
-const ERR_UNKNOWN_FILE_EXTENSION = createError<[string]>(
-  'Unknown file extension "%s"',
-  'ERR_UNKNOWN_FILE_EXTENSION'
-)
-
-/**
- * The following file extensions are not allowed unless "allowArbitraryExtensions"
- * flag is enabled
- */
-const UNALLOWED_FILE_EXTENSIONS = ['.tsx', '.ts', '.mts', '.cts']
 
 /**
  * Check if specifier is reference to a local path. Local path
@@ -105,26 +93,6 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
     }
   }
 
-  const allowArbitraryExtensions = !!tsConfig?.compilerOptions?.allowArbitraryExtensions
-
-  /**
-   * When arbritary file extensions are not allowed and there is a typescript import,
-   * then we will result in an error to match the behavior of TypeScript.
-   */
-  if (!allowArbitraryExtensions) {
-    if (isLocalPath(specifier)) {
-      const fileExtension = extname(specifier)
-
-      /**
-       * Disallow typescript imports. However, the entrypoint could be a TypeScript
-       * file
-       */
-      if (UNALLOWED_FILE_EXTENSIONS.includes(fileExtension) && context.parentURL) {
-        throw new ERR_UNKNOWN_FILE_EXTENSION([fileExtension])
-      }
-    }
-  }
-
   debug('resolving file with specifier %s', specifier)
   try {
     return await nextResolve(specifier, context)
@@ -134,7 +102,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
      * "allowArbitraryExtensions" is false
      */
     if (
-      !allowArbitraryExtensions &&
+      !tsConfig?.compilerOptions?.allowArbitraryExtensions &&
       error.code === 'ERR_MODULE_NOT_FOUND' &&
       isLocalPath(specifier)
     ) {

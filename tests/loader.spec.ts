@@ -70,7 +70,7 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), `${fs.basePath}\n${fs.basePath}`)
   })
 
-  test('disallow importing files with .ts extension unless allowArbitraryExtensions is enabled', async ({
+  test('allow importing files with .ts extension even when allowArbitraryExtensions is disabled', async ({
     assert,
     fs,
   }) => {
@@ -90,8 +90,7 @@ test.group('Loader', (group) => {
       {}
     )
 
-    assert.include(result.stderr.trim(), 'Exception: Unknown file extension ".ts"')
-    assert.equal(result.stdout.trim(), '')
+    assert.equal(result.stdout.trim(), fs.basePath)
   })
 
   test('disallow index imports', async ({ assert, fs }) => {
@@ -351,7 +350,7 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
-  test('disallow .tsx file import when allowArbitraryExtensions is not enabled', async ({
+  test('allow .tsx file import even when allowArbitraryExtensions is disabled', async ({
     assert,
     fs,
   }) => {
@@ -392,8 +391,7 @@ test.group('Loader', (group) => {
       {}
     )
 
-    assert.include(result.stderr.trim(), 'Exception: Unknown file extension ".tsx"')
-    assert.equal(result.stdout.trim(), '')
+    assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
   test('allow .tsx file import when allowArbitraryExtensions is enabled', async ({

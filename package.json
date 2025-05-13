@@ -3,7 +3,7 @@
   "description": "",
   "version": "1.1.1",
   "engines": {
-    "node": ">=20.6.0"
+    "node": ">=24.0.0"
   },
   "type": "module",
   "files": [
@@ -52,7 +52,6 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@poppinss/exception": "^1.2.1",
     "@swc/core": "^1.11.24",
     "get-tsconfig": "^4.10.0",
     "resolve-pkg-maps": "^1.0.0"
@@ -121,8 +120,5 @@
       "tests/**"
     ]
   },
-  "prettier": "@adonisjs/prettier-config",
-  "volta": {
-    "node": "24.0.0"
-  }
+  "prettier": "@adonisjs/prettier-config"
 }
