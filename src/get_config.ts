@@ -82,7 +82,11 @@ function tsConfigToSwcConfig(tsConfig: TsConfigJsonResolved): SWCConfig {
               verbatimModuleSyntax: true,
             }
           : {}),
-        useDefineForClassFields: tsConfig.compilerOptions?.useDefineForClassFields,
+        ...(tsConfig.compilerOptions?.useDefineForClassFields
+          ? {
+              useDefineForClassFields: true,
+            }
+          : {}),
         react: {
           runtime: 'automatic',
           ...(tsConfig.compilerOptions?.jsxImportSource

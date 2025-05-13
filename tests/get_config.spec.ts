@@ -69,13 +69,9 @@ test.group('Get config', () => {
             },
             "target": "esnext",
             "transform": {
-              "decoratorMetadata": undefined,
-              "legacyDecorator": undefined,
               "react": {
-                "importSource": undefined,
                 "runtime": "automatic",
               },
-              "useDefineForClassFields": undefined,
               "verbatimModuleSyntax": true,
             },
           },
@@ -121,13 +117,9 @@ test.group('Get config', () => {
             },
             "target": "es2020",
             "transform": {
-              "decoratorMetadata": undefined,
-              "legacyDecorator": undefined,
               "react": {
-                "importSource": undefined,
                 "runtime": "automatic",
               },
-              "useDefineForClassFields": undefined,
               "verbatimModuleSyntax": true,
             },
           },
@@ -176,13 +168,9 @@ test.group('Get config', () => {
             },
             "target": "esnext",
             "transform": {
-              "decoratorMetadata": undefined,
-              "legacyDecorator": undefined,
               "react": {
-                "importSource": undefined,
                 "runtime": "automatic",
               },
-              "useDefineForClassFields": undefined,
               "verbatimModuleSyntax": true,
             },
           },
