@@ -67,13 +67,29 @@ function tsConfigToSwcConfig(tsConfig: TsConfigJsonResolved): SWCConfig {
         dynamicImport: true,
       },
       transform: {
-        decoratorMetadata: tsConfig.compilerOptions?.emitDecoratorMetadata,
-        legacyDecorator: tsConfig.compilerOptions?.experimentalDecorators,
-        verbatimModuleSyntax: tsConfig.compilerOptions?.verbatimModuleSyntax,
+        ...(tsConfig.compilerOptions?.emitDecoratorMetadata
+          ? {
+              decoratorMetadata: true,
+            }
+          : {}),
+        ...(tsConfig.compilerOptions?.experimentalDecorators
+          ? {
+              legacyDecorator: true,
+            }
+          : {}),
+        ...(tsConfig.compilerOptions?.verbatimModuleSyntax
+          ? {
+              verbatimModuleSyntax: true,
+            }
+          : {}),
         useDefineForClassFields: tsConfig.compilerOptions?.useDefineForClassFields,
         react: {
           runtime: 'automatic',
-          importSource: tsConfig.compilerOptions?.jsxImportSource,
+          ...(tsConfig.compilerOptions?.jsxImportSource
+            ? {
+                importSource: tsConfig.compilerOptions?.jsxImportSource,
+              }
+            : {}),
         },
       },
       keepClassNames: true,
