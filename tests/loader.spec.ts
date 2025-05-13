@@ -90,8 +90,7 @@ test.group('Loader', (group) => {
       {}
     )
 
-    console.log(result.stderr)
-    assert.include(result.stderr.trim(), 'Error: Unknown file extension ".ts"')
+    assert.include(result.stderr.trim(), 'Exception: Unknown file extension ".ts"')
     assert.equal(result.stdout.trim(), '')
   })
 
@@ -393,8 +392,7 @@ test.group('Loader', (group) => {
       {}
     )
 
-    console.log(result.stderr)
-    assert.include(result.stderr.trim(), 'Error: Unknown file extension ".tsx"')
+    assert.include(result.stderr.trim(), 'Exception: Unknown file extension ".tsx"')
     assert.equal(result.stdout.trim(), '')
   })
 
