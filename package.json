@@ -1,6 +1,6 @@
 {
   "name": "@poppinss/ts-exec",
-  "description": "",
+  "description": "TypeScript JIT compiler built for correctness and supports legacy/experimental decorators",
   "version": "1.1.4",
   "engines": {
     "node": ">=24.0.0"
@@ -56,13 +56,13 @@
     "get-tsconfig": "^4.10.0",
     "resolve-pkg-maps": "^1.0.0"
   },
-  "homepage": "https://github.com/thetutlage/ts-exec#readme",
+  "homepage": "https://github.com/poppinss/ts-exec#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thetutlage/ts-exec.git"
+    "url": "git+https://github.com/poppinss/ts-exec.git"
   },
   "bugs": {
-    "url": "https://github.com/thetutlage/ts-exec/issues"
+    "url": "https://github.com/poppinss/ts-exec/issues"
   },
   "keywords": [
     "typescript",
@@ -73,7 +73,8 @@
   "author": "Harminder Virk <virk@adonisjs.com>",
   "license": "MIT",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "tsup": {
     "entry": [
