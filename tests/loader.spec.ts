@@ -229,6 +229,41 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), 'creating user with id 1')
   })
 
+  test('resolve subpath exports with .ts extension', async ({ assert, fs }) => {
+    await fs.createJson('package.json', {
+      imports: {
+        '#src/*': './src/*.ts',
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import { User } from '#src/user'
+      const user = new User()
+      user.create(1)
+    `
+    )
+
+    await fs.create(
+      'src/user.ts',
+      `export class User {
+        create(id: number) {
+          console.log('creating user with id ' + id)
+        }
+      }
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), 'creating user with id 1')
+  })
+
   test('keep modules with side-effects when verbatimModuleSyntax is enabled', async ({
     assert,
     fs,

@@ -10,16 +10,13 @@ import { fileURLToPath } from 'node:url'
 import type { Config as SwcConfig } from '@swc/core'
 import type { TsConfigJsonResolved } from 'get-tsconfig'
 import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
-import { resolveImports, type PathConditionsMap } from 'resolve-pkg-maps'
 
 import debug from './debug.ts'
 import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
-import { getPackageJson } from './get_package_json.ts'
 
 let swcConfig: SwcConfig
 let tsConfig: TsConfigJsonResolved | null
-let subPathImports: PathConditionsMap | null
 
 /**
  * Check if specifier is reference to a local path. Local path
@@ -63,10 +60,8 @@ function wrapAndReThrowSwcError(error: any) {
 export async function initialize() {
   const searchPath = process.env.TS_EXEC_PWD ?? process.cwd()
   const config = getConfig(searchPath)
-  const pkgJSON = await getPackageJson(searchPath)
   swcConfig = config.swcConfig
   tsConfig = config.tsConfig
-  subPathImports = pkgJSON ? pkgJSON.imports : null
 }
 
 /**
@@ -82,18 +77,6 @@ export async function initialize() {
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   debug('resolving specifier %s', specifier)
 
-  /**
-   * Handle subpath imports
-   */
-  if (specifier.startsWith('#') && subPathImports) {
-    debug('resolving subpath import %s %O', specifier, subPathImports)
-    const resolvedPaths = resolveImports(subPathImports, specifier, context.conditions)
-    if (resolvedPaths.length) {
-      specifier = resolvedPaths[0]
-    }
-  }
-
-  debug('resolving file with specifier %s', specifier)
   try {
     return await nextResolve(specifier, context)
   } catch (error) {
@@ -104,22 +87,24 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
     if (
       !tsConfig?.compilerOptions?.allowArbitraryExtensions &&
       error.code === 'ERR_MODULE_NOT_FOUND' &&
-      isLocalPath(specifier)
+      error.url &&
+      isLocalPath(error.url)
     ) {
-      const fileExtension = extname(specifier)
+      let url = error.url
+      const fileExtension = extname(url)
 
       if (fileExtension === '.js') {
-        specifier = specifier.replace('.js', '.ts')
+        url = url.replace('.js', '.ts')
       } else if (fileExtension === '.mjs') {
-        specifier = specifier.replace('.mjs', '.mts')
+        url = url.replace('.mjs', '.mts')
       } else if (fileExtension === '.cjs') {
-        specifier = specifier.replace('.cjs', '.cts')
+        url = url.replace('.cjs', '.cts')
       } else if (fileExtension === '.jsx') {
-        specifier = specifier.replace('.jsx', '.tsx')
+        url = url.replace('.jsx', '.tsx')
       }
 
-      debug('retrying to resolve file with specifier %s', specifier)
-      return nextResolve(specifier, context)
+      debug('retrying to resolve file with specifier %s', url)
+      return nextResolve(url, context)
     }
 
     throw error
