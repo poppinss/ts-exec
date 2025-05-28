@@ -7,16 +7,14 @@
 
 import { extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config as SwcConfig } from '@swc/core'
-import type { TsConfigJsonResolved } from 'get-tsconfig'
 import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
 
 import debug from './debug.ts'
 import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
 
-let swcConfig: SwcConfig
-let tsConfig: TsConfigJsonResolved | null
+let swcConfig: ReturnType<typeof getConfig>['swcConfig']
+let tsConfig: ReturnType<typeof getConfig>['tsConfig'] | null
 
 /**
  * Check if specifier is reference to a local path. Local path
@@ -82,10 +80,10 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   } catch (error) {
     /**
      * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions when
-     * "allowArbitraryExtensions" is false
+     * "rewriteRelativeImportExtensions" is false
      */
     if (
-      !tsConfig?.compilerOptions?.allowArbitraryExtensions &&
+      !tsConfig?.compilerOptions?.rewriteRelativeImportExtensions &&
       error.code === 'ERR_MODULE_NOT_FOUND' &&
       error.url &&
       isLocalPath(error.url)

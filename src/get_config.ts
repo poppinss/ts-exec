@@ -106,7 +106,13 @@ function tsConfigToSwcConfig(tsConfig: TsConfigJsonResolved): SWCConfig {
  * file in the provided search path
  */
 export function getConfig(searchPath: string | URL): {
-  tsConfig: TsConfigJsonResolved | null
+  tsConfig:
+    | (TsConfigJsonResolved & {
+        compilerOptions?: {
+          rewriteRelativeImportExtensions?: boolean
+        }
+      })
+    | null
   tsConfigPath: string | null
   swcConfig: SWCConfig
 } {

@@ -18,6 +18,12 @@ test.group('Loader', (group) => {
   })
 
   test('import typescript files using .js extension', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.create(
       'index.ts',
       `
@@ -47,6 +53,12 @@ test.group('Loader', (group) => {
   })
 
   test('import cjs and mjs files', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.create(
       'index.ts',
       `
@@ -70,10 +82,16 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), `${fs.basePath}\n${fs.basePath}`)
   })
 
-  test('allow importing files with .ts extension even when allowArbitraryExtensions is disabled', async ({
+  test('allow importing files with .ts extension even when rewriteRelativeImportExtensions is explicitly disabled', async ({
     assert,
     fs,
   }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.create(
       'index.ts',
       `
@@ -135,13 +153,13 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '')
   })
 
-  test('allow importing files with .ts extension unless allowArbitraryExtensions is enabled', async ({
+  test('allow importing files with .ts extension unless rewriteRelativeImportExtensions is enabled', async ({
     assert,
     fs,
   }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
-        allowArbitraryExtensions: true,
+        rewriteRelativeImportExtensions: true,
       },
     })
 
@@ -164,13 +182,13 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), fs.basePath)
   })
 
-  test('do not rewrite to .ts when allowArbitraryExtensions extensions is enabled', async ({
+  test('do not rewrite to .ts when rewriteRelativeImportExtensions extensions is enabled', async ({
     assert,
     fs,
   }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
-        allowArbitraryExtensions: true,
+        rewriteRelativeImportExtensions: true,
       },
     })
 
@@ -195,6 +213,12 @@ test.group('Loader', (group) => {
   })
 
   test('resolve subpath exports', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.createJson('package.json', {
       imports: {
         '#src/*': './src/*.js',
@@ -230,6 +254,12 @@ test.group('Loader', (group) => {
   })
 
   test('resolve subpath exports with .ts extension', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.createJson('package.json', {
       imports: {
         '#src/*': './src/*.ts',
@@ -270,6 +300,7 @@ test.group('Loader', (group) => {
   }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
+        rewriteRelativeImportExtensions: false,
         verbatimModuleSyntax: true,
       },
     })
@@ -299,6 +330,12 @@ test.group('Loader', (group) => {
   })
 
   test('use import.meta.resolve to resolve paths', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.createJson('package.json', {
       imports: {
         '#src/*': './src/*.js',
@@ -327,6 +364,12 @@ test.group('Loader', (group) => {
   })
 
   test('import packages ending in .js', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
     await fs.create(
       'index.ts',
       `
@@ -385,7 +428,7 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
-  test('allow .tsx file import even when allowArbitraryExtensions is disabled', async ({
+  test('allow .tsx file import even when rewriteRelativeImportExtensions is disabled', async ({
     assert,
     fs,
   }) => {
@@ -429,14 +472,14 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
-  test('allow .tsx file import when allowArbitraryExtensions is enabled', async ({
+  test('allow .tsx file import when rewriteRelativeImportExtensions is enabled', async ({
     assert,
     fs,
   }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
         jsx: 'react-jsx',
-        allowArbitraryExtensions: true,
+        rewriteRelativeImportExtensions: true,
         jsxImportSource: 'preact',
       },
     })
@@ -482,7 +525,7 @@ test.group('Loader', (group) => {
   test('process typescript modules from node_modules', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
-        allowArbitraryExtensions: true,
+        rewriteRelativeImportExtensions: true,
       },
     })
 
