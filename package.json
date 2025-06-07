@@ -1,7 +1,7 @@
 {
   "name": "@poppinss/ts-exec",
   "description": "TypeScript JIT compiler built for correctness and supports legacy/experimental decorators",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "engines": {
     "node": ">=24.0.0"
   },
