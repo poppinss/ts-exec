@@ -84,14 +84,15 @@ export async function initialize() {
  */
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   debug('resolving specifier %s', specifier)
+  const [pathname] = specifier.split('?')
 
   if (
     !tsConfig?.compilerOptions?.rewriteRelativeImportExtensions &&
     context.parentURL &&
-    isTypeScriptFile(specifier)
+    isTypeScriptFile(pathname)
   ) {
     throw new Error(
-      `Cannot import "${specifier}" using "${extname(specifier)}" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files`
+      `Cannot import "${specifier}" using "${extname(pathname)}" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files`
     )
   }
 
@@ -111,19 +112,20 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
      * production build.
      */
     if (error.code === 'ERR_MODULE_NOT_FOUND' && error.url && isLocalPath(error.url)) {
-      let url = error.url
-      const fileExtension = extname(url)
+      let [urlPathname, ...urlQs] = error.url.split('?')
+      const fileExtension = extname(urlPathname)
 
       if (fileExtension === '.js') {
-        url = url.replace('.js', '.ts')
+        urlPathname = urlPathname.replace('.js', '.ts')
       } else if (fileExtension === '.mjs') {
-        url = url.replace('.mjs', '.mts')
+        urlPathname = urlPathname.replace('.mjs', '.mts')
       } else if (fileExtension === '.cjs') {
-        url = url.replace('.cjs', '.cts')
+        urlPathname = urlPathname.replace('.cjs', '.cts')
       } else if (fileExtension === '.jsx') {
-        url = url.replace('.jsx', '.tsx')
+        urlPathname = urlPathname.replace('.jsx', '.tsx')
       }
 
+      const url = urlQs.length ? `${urlPathname}?${urlQs.join('?')}` : urlPathname
       debug('retrying to resolve file with specifier %s', url)
       return nextResolve(url, context)
     }

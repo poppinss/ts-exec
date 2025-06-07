@@ -150,6 +150,38 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '')
   })
 
+  test('disallow typescript imports unless rewriteRelativeImportExtensions is enabled', async ({
+    assert,
+    fs,
+  }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import moduleDirname from './get_path.ts'
+      console.log(moduleDirname)
+    `
+    )
+
+    await fs.create('get_path.ts', `export default import.meta.dirname`)
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.include(
+      result.stderr.trim(),
+      'Error: Cannot import "./get_path.ts" using ".ts" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files'
+    )
+  })
+
   test('resolve .ts file when .js is used in the import', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {},
@@ -390,7 +422,7 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
-  test('do not allow .tsx file import even when rewriteRelativeImportExtensions is disabled', async ({
+  test('do not allow .tsx file import when rewriteRelativeImportExtensions is disabled', async ({
     assert,
     fs,
   }) => {
@@ -516,5 +548,107 @@ test.group('Loader', (group) => {
     )
 
     assert.equal(result.stdout.trim(), join(fs.basePath, 'node_modules', 'foo'))
+  })
+
+  test('import typescript files using .js extension and query string', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import { User } from './user.js?hot-hook-version=1'
+      const user = new User()
+      user.create(1)
+    `
+    )
+
+    await fs.create(
+      'user.ts',
+      `export class User {
+        create(id: number) {
+          console.log('creating user with id ' + id)
+        }
+      }
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), 'creating user with id 1')
+  })
+
+  test('import typescript files using .ts extension and query string', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: true,
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import { User } from './user.ts?hot-hook-version=1'
+      const user = new User()
+      user.create(1)
+    `
+    )
+
+    await fs.create(
+      'user.ts',
+      `export class User {
+        create(id: number) {
+          console.log('creating user with id ' + id)
+        }
+      }
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), 'creating user with id 1')
+  })
+
+  test('disallow typescript imports with query string unless rewriteRelativeImportExtensions is enabled', async ({
+    assert,
+    fs,
+  }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: false,
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import moduleDirname from './get_path.ts?v=1'
+      console.log(moduleDirname)
+    `
+    )
+
+    await fs.create('get_path.ts', `export default import.meta.dirname`)
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.include(
+      result.stderr.trim(),
+      'Error: Cannot import "./get_path.ts?v=1" using ".ts" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files'
+    )
   })
 })
