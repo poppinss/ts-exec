@@ -82,14 +82,9 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), `${fs.basePath}\n${fs.basePath}`)
   })
 
-  test('allow importing files with .ts extension even when rewriteRelativeImportExtensions is explicitly disabled', async ({
-    assert,
-    fs,
-  }) => {
+  test('allow importing files with .ts extension', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
-      compilerOptions: {
-        rewriteRelativeImportExtensions: false,
-      },
+      compilerOptions: {},
     })
 
     await fs.create(
@@ -153,43 +148,9 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '')
   })
 
-  test('allow importing files with .ts extension unless rewriteRelativeImportExtensions is enabled', async ({
-    assert,
-    fs,
-  }) => {
+  test('resolve .ts file when .js is used in the import', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
-      compilerOptions: {
-        rewriteRelativeImportExtensions: true,
-      },
-    })
-
-    await fs.create(
-      'index.ts',
-      `
-      import moduleDirname from './get_path.ts'
-      console.log(moduleDirname)
-    `
-    )
-
-    await fs.create('get_path.ts', `export default import.meta.dirname`)
-
-    const result = await spawnPromisified(
-      process.execPath,
-      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
-      {}
-    )
-
-    assert.equal(result.stdout.trim(), fs.basePath)
-  })
-
-  test('do not rewrite to .ts when rewriteRelativeImportExtensions extensions is enabled', async ({
-    assert,
-    fs,
-  }) => {
-    await fs.createJson('tsconfig.json', {
-      compilerOptions: {
-        rewriteRelativeImportExtensions: true,
-      },
+      compilerOptions: {},
     })
 
     await fs.create(
@@ -208,8 +169,7 @@ test.group('Loader', (group) => {
       {}
     )
 
-    assert.include(result.stderr, 'Cannot find module')
-    assert.equal(result.stdout.trim(), '')
+    assert.equal(result.stdout.trim(), `${fs.basePath}`)
   })
 
   test('resolve subpath exports', async ({ assert, fs }) => {

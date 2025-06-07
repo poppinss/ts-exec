@@ -14,7 +14,6 @@ import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
 
 let swcConfig: ReturnType<typeof getConfig>['swcConfig']
-let tsConfig: ReturnType<typeof getConfig>['tsConfig'] | null
 
 /**
  * Check if specifier is reference to a local path. Local path
@@ -59,7 +58,6 @@ export async function initialize() {
   const searchPath = process.env.TS_EXEC_PWD ?? process.cwd()
   const config = getConfig(searchPath)
   swcConfig = config.swcConfig
-  tsConfig = config.tsConfig
 }
 
 /**
@@ -79,15 +77,18 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
     return await nextResolve(specifier, context)
   } catch (error) {
     /**
-     * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions when
-     * "rewriteRelativeImportExtensions" is false
+     * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions all the time. Here's the
+     * use case:
+     *
+     * Imagine, I have a dynamic import that TSC will not rewrite (because it uses a variable).
+     * Now, I want the ability to write this import in a way that it works during both the
+     * development and the production.
+     *
+     * The only way to make it work is via the ".js" file extension. In that case, we want ts-exec
+     * to be able to import ".js" files as well. Forcing ".ts" means I am cornered after the
+     * production build.
      */
-    if (
-      !tsConfig?.compilerOptions?.rewriteRelativeImportExtensions &&
-      error.code === 'ERR_MODULE_NOT_FOUND' &&
-      error.url &&
-      isLocalPath(error.url)
-    ) {
+    if (error.code === 'ERR_MODULE_NOT_FOUND' && error.url && isLocalPath(error.url)) {
       let url = error.url
       const fileExtension = extname(url)
 
