@@ -14,6 +14,17 @@ import { getConfig } from './get_config.ts'
 import { transformSync } from './transform.ts'
 
 let swcConfig: ReturnType<typeof getConfig>['swcConfig']
+let tsConfig: ReturnType<typeof getConfig>['tsConfig'] | null
+
+function isTypeScriptFile(filePath: string): boolean {
+  return (
+    !filePath.endsWith('.d.ts') &&
+    (filePath.endsWith('.ts') ||
+      filePath.endsWith('.tsx') ||
+      filePath.endsWith('.mts') ||
+      filePath.endsWith('.cts'))
+  )
+}
 
 /**
  * Check if specifier is reference to a local path. Local path
@@ -58,6 +69,7 @@ export async function initialize() {
   const searchPath = process.env.TS_EXEC_PWD ?? process.cwd()
   const config = getConfig(searchPath)
   swcConfig = config.swcConfig
+  tsConfig = config.tsConfig
 }
 
 /**
@@ -72,6 +84,16 @@ export async function initialize() {
  */
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   debug('resolving specifier %s', specifier)
+
+  if (
+    !tsConfig?.compilerOptions?.rewriteRelativeImportExtensions &&
+    context.parentURL &&
+    isTypeScriptFile(specifier)
+  ) {
+    throw new Error(
+      `Cannot import "${specifier}" using "${extname(specifier)}" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files`
+    )
+  }
 
   try {
     return await nextResolve(specifier, context)

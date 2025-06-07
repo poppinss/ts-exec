@@ -84,7 +84,9 @@ test.group('Loader', (group) => {
 
   test('allow importing files with .ts extension', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
-      compilerOptions: {},
+      compilerOptions: {
+        rewriteRelativeImportExtensions: true,
+      },
     })
 
     await fs.create(
@@ -388,7 +390,7 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
   })
 
-  test('allow .tsx file import even when rewriteRelativeImportExtensions is disabled', async ({
+  test('do not allow .tsx file import even when rewriteRelativeImportExtensions is disabled', async ({
     assert,
     fs,
   }) => {
@@ -429,7 +431,10 @@ test.group('Loader', (group) => {
       {}
     )
 
-    assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
+    assert.include(
+      result.stderr.trim(),
+      'Cannot import "./components/button.tsx" using ".tsx" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files'
+    )
   })
 
   test('allow .tsx file import when rewriteRelativeImportExtensions is enabled', async ({
