@@ -39,21 +39,21 @@
     "@japa/file-system": "^2.3.2",
     "@japa/runner": "^4.4.0",
     "@japa/snapshot": "^2.0.9",
-    "@release-it/conventional-changelog": "^10.0.1",
-    "@types/node": "^24.2.1",
+    "@release-it/conventional-changelog": "^10.0.2",
+    "@types/node": "^24.10.1",
     "c8": "^10.1.3",
-    "eslint": "^9.33.0",
-    "ipaddr.js": "^2.2.0",
-    "preact": "^10.27.0",
-    "preact-render-to-string": "^6.5.13",
-    "prettier": "^3.6.2",
-    "release-it": "^19.0.4",
-    "tsup": "^8.5.0",
-    "typescript": "^5.9.2"
+    "eslint": "^9.39.1",
+    "ipaddr.js": "^2.3.0",
+    "preact": "^10.28.0",
+    "preact-render-to-string": "^6.6.3",
+    "prettier": "^3.7.4",
+    "release-it": "^19.0.6",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@swc/core": "1.13.3",
-    "get-tsconfig": "^4.10.1"
+    "@swc/core": "1.15.3",
+    "get-tsconfig": "^4.13.0"
   },
   "homepage": "https://github.com/poppinss/ts-exec#readme",
   "repository": {
