@@ -241,7 +241,7 @@ Additionally, `tsx` doesn't support legacy decorators, which many projects still
 | Feature                       | ts-exec | tsx | ts-node | Node.js (native) |
 | ----------------------------- | :-----: | :-: | :-----: | :--------------: |
 | **Active maintenance**        |   ✅    | ✅  |   ❌    |        ✅        |
-| **Built on SWC**              |   ✅    | ✅  |   ⚠️    |        ✅        |
+| **Built on SWC**              |   ✅    | ❌  |   ⚠️    |        ✅        |
 | **Legacy decorators**         |   ✅    | ❌  |   ✅    |        ❌        |
 | **Node.js-compliant imports** |   ✅    | ❌  |   ✅    |        ✅        |
 | **ESM-first**                 |   ✅    | ✅  |   ⚠️    |        ✅        |
