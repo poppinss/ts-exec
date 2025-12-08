@@ -74,7 +74,7 @@ No custom config files needed, parses tsconfig.json automatically
 </td>
 </tr>
 <tr>
-<td colspan="2" align="center">
+<td>
 
 ✅ **Development confidence**  
 Code that runs with ts-exec will run after compilation
@@ -108,12 +108,84 @@ node --import=@poppinss/ts-exec ./src/index.ts
 Use ts-exec within your Node.js application.
 
 ```ts
-// title: scripts/runner.ts
 import '@poppinss/ts-exec'
 
 // Now you can import TypeScript files
 const module = await import('./my-typescript-file.ts')
 ```
+
+<br />
+
+## 📝 Imports with `.ts` file extension
+
+TypeScript originally made a deliberate decision to keep import paths unchanged during compilation. When you write an import in TypeScript, it stays exactly the same in the compiled JavaScript output. This design choice means you must reference the file extension that will exist after compilation, not the current TypeScript extension.
+
+For example, when importing a TypeScript file, you write the import with a `.js` extension because that's what will exist after compilation.
+
+```ts
+export class UserService {
+  // implementation
+}
+```
+
+```ts
+// Reference with .js even though the file is user_service.ts
+import { UserService } from '../services/user_service.js'
+```
+
+After compilation, both files become `.js` files, and the import path works seamlessly with Node.js without any modifications.
+
+Recently, the TypeScript team introduced the `rewriteRelativeImportExtensions` compiler option, which allows you to use `.ts` extensions in your imports. When this option is enabled, TypeScript will rewrite `.ts` extensions to `.js` during compilation.
+
+If you prefer to use `.ts` extensions in your imports, enable this option in your `tsconfig.json`.
+
+```json
+{
+  "compilerOptions": {
+    "rewriteRelativeImportExtensions": true
+  }
+}
+```
+
+With this configuration, you can write imports using `.ts` extensions.
+
+```ts
+// Now you can use .ts extension
+import { UserService } from '../services/user_service.ts'
+```
+
+TypeScript will automatically rewrite this to `.js` during compilation, and `ts-exec` will handle it correctly during development.
+
+<br />
+
+### Subpath import aliases
+
+Subpath import aliases are defined in your `package.json` file, which remains unchanged during the TypeScript compilation process. Since `package.json` is used directly by Node.js at runtime and is never rewritten by the TypeScript compiler, the paths you define in your aliases must reference the compiled output extensions.
+
+This means your subpath aliases should always use `.js` extensions, even when the source files are `.ts`. The `package.json` file will be the same in both development (with ts-exec) and production (with compiled JavaScript), so the paths need to work for the compiled output.
+
+```json
+{
+  "name": "my-app",
+  "imports": {
+    "#controllers/*": "./build/controllers/*.js",
+    "#services/*": "./build/services/*.js",
+    "#models/*": "./build/models/*.js"
+  }
+}
+```
+
+With these aliases defined, you can use them in your TypeScript source files.
+
+```ts
+import { UsersController } from '#controllers/users_controller'
+import { UserService } from '#services/user_service'
+import { User } from '#models/user'
+```
+
+This approach works seamlessly with both `ts-exec` during development and Node.js after compilation. The aliases resolve correctly in both environments because `package.json` remains unchanged and Node.js uses it directly for module resolution.
+
+If you have `rewriteRelativeImportExtensions` enabled in your TypeScript configuration, it will not affect subpath import aliases. The rewriting only applies to relative imports (those starting with `./` or `../`), not to bare specifiers or subpath imports.
 
 <br />
 
