@@ -16,6 +16,9 @@ test.group('Get config', () => {
       {
         "swcConfig": {
           "jsc": {
+            "experimental": {
+              "keepImportAttributes": true,
+            },
             "externalHelpers": false,
             "keepClassNames": true,
             "parser": {
@@ -59,6 +62,9 @@ test.group('Get config', () => {
         "swcConfig": {
           "jsc": {
             "baseUrl": undefined,
+            "experimental": {
+              "keepImportAttributes": true,
+            },
             "externalHelpers": false,
             "keepClassNames": true,
             "parser": {
@@ -107,6 +113,9 @@ test.group('Get config', () => {
         "swcConfig": {
           "jsc": {
             "baseUrl": undefined,
+            "experimental": {
+              "keepImportAttributes": true,
+            },
             "externalHelpers": false,
             "keepClassNames": true,
             "parser": {
@@ -158,6 +167,9 @@ test.group('Get config', () => {
         "swcConfig": {
           "jsc": {
             "baseUrl": undefined,
+            "experimental": {
+              "keepImportAttributes": true,
+            },
             "externalHelpers": false,
             "keepClassNames": true,
             "parser": {
