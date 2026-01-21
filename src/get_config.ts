@@ -36,6 +36,9 @@ const DEFAULT_CONFIG: SWCConfig = {
         runtime: 'automatic',
       },
     },
+    experimental: {
+      keepImportAttributes: true,
+    },
     keepClassNames: true,
   },
 }
@@ -95,6 +98,9 @@ function tsConfigToSwcConfig(tsConfig: TsConfigJsonResolved): SWCConfig {
               }
             : {}),
         },
+      },
+      experimental: {
+        keepImportAttributes: true,
       },
       keepClassNames: true,
     },
