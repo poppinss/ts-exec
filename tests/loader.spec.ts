@@ -651,4 +651,60 @@ test.group('Loader', (group) => {
       'Error: Cannot import "./get_path.ts?v=1" using ".ts" extension. Enable "compilerOptions.rewriteRelativeImportExtensions" to import TypeScript files'
     )
   })
+
+  test('preserve import attributes for JSON imports', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {},
+    })
+
+    await fs.createJson('data.json', {
+      name: 'ts-exec',
+      version: '1.0.0',
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import data from './data.json' with { type: 'json' }
+      console.log(data.name)
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), 'ts-exec')
+    assert.equal(result.stderr.trim(), '')
+  })
+
+  test('preserve import attributes for dynamic JSON imports', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {},
+    })
+
+    await fs.createJson('config.json', {
+      enabled: true,
+      timeout: 5000,
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      const config = await import('./config.json', { with: { type: 'json' } })
+      console.log(config.default.timeout)
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), '5000')
+    assert.equal(result.stderr.trim(), '')
+  })
 })
