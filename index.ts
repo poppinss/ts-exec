@@ -7,4 +7,5 @@
 
 import { register } from 'node:module'
 
+process.setSourceMapsEnabled(true)
 register('./src/loader.js', import.meta.url)
