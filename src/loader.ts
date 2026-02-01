@@ -112,22 +112,29 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
      * production build.
      */
     if (error.code === 'ERR_MODULE_NOT_FOUND' && error.url && isLocalPath(error.url)) {
-      let [urlPathname, ...urlQs] = error.url.split('?')
+      let [urlPathname, ...urlQs] = (error.url as string).split('?')
       const fileExtension = extname(urlPathname)
+      const testExtensions: string[] = []
 
-      if (fileExtension === '.js') {
-        urlPathname = urlPathname.replace('.js', '.ts')
-      } else if (fileExtension === '.mjs') {
-        urlPathname = urlPathname.replace('.mjs', '.mts')
-      } else if (fileExtension === '.cjs') {
-        urlPathname = urlPathname.replace('.cjs', '.cts')
-      } else if (fileExtension === '.jsx') {
-        urlPathname = urlPathname.replace('.jsx', '.tsx')
+      if (['.js', '.mjs', '.cjs', '.jsx'].includes(fileExtension)) {
+        testExtensions.push(fileExtension.replace('js', 'ts'))
       }
 
-      const url = urlQs.length ? `${urlPathname}?${urlQs.join('?')}` : urlPathname
-      debug('retrying to resolve file with specifier %s', url)
-      return nextResolve(url, context)
+      if (fileExtension === '.js') {
+        testExtensions.push('.tsx')
+      }
+
+      for (const ext of testExtensions) {
+        const tryPath = urlPathname.slice(0, -fileExtension.length) + ext
+
+        try {
+          const url = urlQs.length ? `${tryPath}?${urlQs.join('?')}` : tryPath
+          debug('retrying to resolve file with specifier %s', url)
+          return await nextResolve(url, context)
+        } catch {
+          // ignore and try next extension
+        }
+      }
     }
 
     throw error
