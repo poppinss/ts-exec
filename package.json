@@ -52,7 +52,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@swc/core": "1.15.3",
+    "@swc/core": "~1.15.11",
     "get-tsconfig": "^4.13.0"
   },
   "homepage": "https://github.com/poppinss/ts-exec#readme",
