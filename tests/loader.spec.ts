@@ -707,4 +707,52 @@ test.group('Loader', (group) => {
     assert.equal(result.stdout.trim(), '5000')
     assert.equal(result.stderr.trim(), '')
   })
+
+  test('allow importing files with .tsx extension using import mapping', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {
+      compilerOptions: {
+        rewriteRelativeImportExtensions: true,
+        jsx: 'react-jsx',
+        jsxImportSource: 'preact',
+      },
+    })
+
+    await fs.createJson('package.json', {
+      imports: {
+        '#components/*': './components/*.js',
+      },
+    })
+
+    await fs.create(
+      'index.ts',
+      `
+      import render from 'preact-render-to-string'
+      import { Button } from '#components/button'
+
+      console.log(render(Button({ type: 'submit', text: 'Login' })))
+    `
+    )
+
+    await fs.create(
+      'components/button.tsx',
+      `
+      interface ChildrenProps {
+        type: 'submit' | 'button';
+        text: string
+      }
+
+      export function Button(props: ChildrenProps) {
+        return <button type={props.type}>{props.text}</button>
+      }
+    `
+    )
+
+    const result = await spawnPromisified(
+      process.execPath,
+      ['--no-warnings', '--import', './build/index.js', join(fs.basePath, 'index.ts')],
+      {}
+    )
+
+    assert.equal(result.stdout.trim(), '<button type="submit">Login</button>')
+  })
 })
