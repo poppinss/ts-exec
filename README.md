@@ -189,6 +189,22 @@ If you have `rewriteRelativeImportExtensions` enabled in your TypeScript configu
 
 <br />
 
+### Files loaded using `require`
+
+TypeScript files loaded using `require` (for example, via `createRequire`) are also compiled by `ts-exec`, so enums and decorators work inside them. The same file resolution rules apply to them as well. You must enable the `rewriteRelativeImportExtensions` compiler option to require a file using its TypeScript extension.
+
+```ts
+import { createRequire } from 'node:module'
+const require = createRequire(import.meta.url)
+
+// Needs "rewriteRelativeImportExtensions"
+const { Role } = require('./role.cts')
+```
+
+The `.jsx` and `.tsx` files are always compiled as ES modules, including when they are loaded using `require`. Therefore, they cannot use `module.exports` or other CommonJS globals.
+
+<br />
+
 ## 🤔 Why not tsx?
 
 If you're currently using `tsx`, you might wonder why to switch. The answer depends on your priorities.

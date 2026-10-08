@@ -7,7 +7,7 @@
 
 import { extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { LoadHook, ModuleFormat, ResolveHook } from 'node:module'
+import type { LoadHookSync, ModuleFormat, ResolveHookSync } from 'node:module'
 
 import debug from './debug.ts'
 import { getConfig } from './get_config.ts'
@@ -63,9 +63,10 @@ function wrapAndReThrowSwcError(error: any) {
 }
 
 /**
- * Initialize hook to load different config files
+ * Loads the tsconfig file and computes the SWC config. Must be called
+ * before registering the hooks
  */
-export async function initialize() {
+export function initialize() {
   const searchPath = process.env.TS_EXEC_PWD ?? process.cwd()
   const config = getConfig(searchPath)
   swcConfig = config.swcConfig
@@ -82,7 +83,7 @@ export async function initialize() {
  * For example, someone registers a loader to import files from Github and
  * our extension rewrite checks for same file on disk, hence it will fail.
  */
-export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
+export const resolve: ResolveHookSync = (specifier, context, nextResolve) => {
   debug('resolving specifier %s', specifier)
   const [pathname] = specifier.split('?')
 
@@ -97,7 +98,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   }
 
   try {
-    return await nextResolve(specifier, context)
+    return nextResolve(specifier, context)
   } catch (error) {
     /**
      * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions all the time. Here's the
@@ -130,7 +131,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
         try {
           const url = urlQs.length ? `${tryPath}?${urlQs.join('?')}` : tryPath
           debug('retrying to resolve file with specifier %s', url)
-          return await nextResolve(url, context)
+          return nextResolve(url, context)
         } catch {
           // ignore and try next extension
         }
@@ -142,9 +143,12 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 }
 
 /**
- * Load hook to compile TypeScript and JSX files on the fly
+ * Load hook to compile TypeScript and JSX files on the fly.
+ *
+ * Node.js does not report a format for ".jsx" and ".tsx" files, hence
+ * they are always compiled as ES modules, even when loaded via "require".
  */
-export const load: LoadHook = async function load(url, context, nextLoad) {
+export const load: LoadHookSync = function load(url, context, nextLoad) {
   const { format } = context
   debug('load file %s, %O', url, context)
 
@@ -154,12 +158,12 @@ export const load: LoadHook = async function load(url, context, nextLoad) {
     url.endsWith('.jsx')
   ) {
     try {
-      const { source } = await nextLoad(url, {
+      const { source } = nextLoad(url, {
         ...context,
         format: 'module',
       })
 
-      const { code, map } = await transformSync(source!.toString(), {
+      const { code, map } = transformSync(source!.toString(), {
         format: (format as 'module-typescript' | 'commonjs-typescript') ?? 'module-tsx',
         filename: fileURLToPath(url),
         ...swcConfig,

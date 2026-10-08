@@ -5,7 +5,7 @@
  * file that was distributed with this source code.
  */
 
-import { type Config as SwcConfig, transform as swcTransform } from '@swc/core'
+import { type Config as SwcConfig, transformSync as swcTransformSync } from '@swc/core'
 
 /**
  * Transforms source code using SWC
@@ -20,5 +20,5 @@ export function transformSync(
   const input = `${source ?? ''}`
   const { format, ...rest } = options
   rest.module!.type = format === 'commonjs-typescript' ? 'commonjs' : 'es6'
-  return swcTransform(input, rest)
+  return swcTransformSync(input, rest)
 }

@@ -5,7 +5,9 @@
  * file that was distributed with this source code.
  */
 
-import { register } from 'node:module'
+import { registerHooks } from 'node:module'
+import { initialize, load, resolve } from './src/loader.ts'
 
 process.setSourceMapsEnabled(true)
-register('./src/loader.js', import.meta.url)
+initialize()
+registerHooks({ resolve, load })
