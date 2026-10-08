@@ -99,7 +99,7 @@ export const resolve: ResolveHookSync = (specifier, context, nextResolve) => {
 
   try {
     return nextResolve(specifier, context)
-  } catch (error) {
+  } catch (error: any) {
     /**
      * Re-try with ".ts", ".mts", ".cts" or ".tsx" extensions all the time. Here's the
      * use case:
@@ -179,7 +179,7 @@ export const load: LoadHookSync = function load(url, context, nextLoad) {
         format: format ? (format.replace('-typescript', '') as ModuleFormat) : 'module',
         source: `${output}\n\n//# sourceURL=${url}`,
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.code !== undefined) {
         wrapAndReThrowSwcError(error)
       }
