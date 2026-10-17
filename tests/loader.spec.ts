@@ -6,6 +6,7 @@
  */
 
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { test } from '@japa/runner'
 import { spawnPromisified } from './helpers.ts'
 
@@ -471,7 +472,7 @@ test.group('Loader', (group) => {
       [
         '--no-warnings',
         '--import',
-        join(process.cwd(), 'build/index.js'),
+        pathToFileURL(join(process.cwd(), 'build/index.js')).href,
         '--import',
         import.meta.resolve('hot-hook/register'),
         'index.ts',
