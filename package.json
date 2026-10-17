@@ -43,6 +43,7 @@
     "@types/node": "^26.6.4",
     "c8": "^12.0.0",
     "eslint": "^10.12.0",
+    "hot-hook": "^1.0.0",
     "ipaddr.js": "^2.5.0",
     "preact": "^11.0.0",
     "preact-render-to-string": "^6.8.0",

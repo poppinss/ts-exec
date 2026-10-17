@@ -152,10 +152,16 @@ export const load: LoadHookSync = function load(url, context, nextLoad) {
   const { format } = context
   debug('load file %s, %O', url, context)
 
+  /**
+   * Other loaders (for example hot-hook) may append a query string to
+   * the URL, so the extension must be read from the pathname.
+   */
+  const { pathname } = new URL(url)
+
   if (
     (format && (format === 'module-typescript' || format === 'commonjs-typescript')) ||
-    url.endsWith('.tsx') ||
-    url.endsWith('.jsx')
+    pathname.endsWith('.tsx') ||
+    pathname.endsWith('.jsx')
   ) {
     try {
       const { source } = nextLoad(url, {
