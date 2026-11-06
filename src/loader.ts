@@ -169,7 +169,8 @@ export const load: LoadHookSync = function load(url, context, nextLoad) {
         format: 'module',
       })
 
-      const { code, map } = transformSync(source!.toString(), {
+      const sourceText = typeof source === 'string' ? source : new TextDecoder().decode(source!)
+      const { code, map } = transformSync(sourceText, {
         format: (format as 'module-typescript' | 'commonjs-typescript') ?? 'module-tsx',
         filename: fileURLToPath(url),
         ...swcConfig,

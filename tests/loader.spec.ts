@@ -9,6 +9,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { test } from '@japa/runner'
 import { spawnPromisified } from './helpers.ts'
+import { initialize, load } from '../src/loader.ts'
 
 test.group('Loader', (group) => {
   group.each.setup(({ context }) => {
@@ -51,6 +52,92 @@ test.group('Loader', (group) => {
     )
 
     assert.equal(result.stdout.trim(), 'creating user with id 1')
+  })
+
+  for (const asyncLoaderFirst of [false, true]) {
+    test(`compile typescript with an async loader registered ${asyncLoaderFirst ? 'before' : 'after'} ts-exec`, async ({
+      assert,
+      fs,
+    }) => {
+      await fs.createJson('package.json', { type: 'module' })
+      await fs.createJson('tsconfig.json', {
+        compilerOptions: { rewriteRelativeImportExtensions: true },
+      })
+      await fs.create(
+        'loader.mjs',
+        `export async function load(url, context, nextLoad) {
+          return nextLoad(url, context)
+        }`
+      )
+      await fs.create(
+        'register.mjs',
+        `import { register } from 'node:module'
+        register('./loader.mjs', import.meta.url)`
+      )
+      await fs.create(
+        'message.ts',
+        `export const count: number = 42
+        export default 'café 世界 🚀'`
+      )
+      await fs.create(
+        'index.ts',
+        `console.log('entry ran')
+        const message = await import('./message.ts')
+        console.log(JSON.stringify({ keys: Object.keys(message), value: message.default, count: message.count }))`
+      )
+
+      const loaders = [
+        pathToFileURL(join(process.cwd(), 'build/index.js')).href,
+        pathToFileURL(join(fs.basePath, 'register.mjs')).href,
+      ]
+      if (asyncLoaderFirst) {
+        loaders.reverse()
+      }
+      const result = await spawnPromisified(
+        process.execPath,
+        ['--no-warnings', ...loaders.flatMap((loader) => ['--import', loader]), 'index.ts'],
+        { cwd: fs.basePath }
+      )
+
+      assert.equal(result.code, 0)
+      assert.equal(result.stderr, '')
+      assert.equal(
+        result.stdout.trim(),
+        'entry ran\n' +
+          JSON.stringify({ keys: ['count', 'default'], value: 'café 世界 🚀', count: 42 })
+      )
+    })
+  }
+
+  test('decode string, ArrayBuffer and view sources as UTF-8', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {})
+    initialize()
+
+    const text = `export const value: string = 'café 世界 🚀'`
+    const bytes = new TextEncoder().encode(text)
+    const padded = new Uint8Array(bytes.length + 8)
+    padded.fill(255)
+    padded.set(bytes, 4)
+    const sources = [
+      text,
+      Buffer.from(text),
+      bytes,
+      bytes.buffer,
+      padded.subarray(4, 4 + bytes.length),
+      new Uint8ClampedArray(padded.buffer, 4, bytes.length),
+    ]
+
+    for (const [index, source] of sources.entries()) {
+      const result = load(
+        pathToFileURL(join(fs.basePath, 'message.ts')).href,
+        { format: 'module-typescript', importAttributes: {}, conditions: ['node', 'import'] },
+        () => ({ format: 'module', source })
+      )
+      const filename = `compiled-${index}.mjs`
+      await fs.create(filename, result.source!.toString())
+      const module = await import(pathToFileURL(join(fs.basePath, filename)).href)
+      assert.equal(module.value, 'café 世界 🚀')
+    }
   })
 
   test('import cjs and mjs files', async ({ assert, fs }) => {
