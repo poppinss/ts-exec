@@ -974,6 +974,38 @@ test.group('Loader', (group) => {
     assert.include(result.stderr, `${join(fs.basePath, 'index.ts')}:4:13`)
   })
 
+  test('preserve source locations when decoding UTF-8 byte order marks', async ({ assert, fs }) => {
+    await fs.createJson('tsconfig.json', {})
+    initialize()
+
+    const sourcePath = join(fs.basePath, 'error.ts')
+    for (const [bomCount, column] of [
+      [0, 7],
+      [1, 7],
+      [2, 8],
+    ]) {
+      const text = '\ufeff'.repeat(bomCount) + 'throw new Error("BOM preserved")'
+      for (const source of [text, Buffer.from(text)]) {
+        const result = load(
+          pathToFileURL(sourcePath).href,
+          { format: 'module-typescript', importAttributes: {}, conditions: ['node', 'import'] },
+          () => ({ format: 'module', source })
+        )
+        await fs.create('compiled.mjs', result.source!.toString())
+
+        const output = await spawnPromisified(
+          process.execPath,
+          ['--enable-source-maps', join(fs.basePath, 'compiled.mjs')],
+          {}
+        )
+
+        assert.equal(output.code, 1)
+        assert.include(output.stderr, 'Error: BOM preserved')
+        assert.include(output.stderr, `${sourcePath}:1:${column}`)
+      }
+    }
+  })
+
   test('compile typescript files imported by worker threads', async ({ assert, fs }) => {
     await fs.createJson('tsconfig.json', {
       compilerOptions: {
